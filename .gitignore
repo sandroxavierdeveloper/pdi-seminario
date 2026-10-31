@@ -1,0 +1,77 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# .gitignore do repositório pdi-seminario
+#
+# Regra geral: este repositório contém só código e imagens SINTÉTICAS.
+# Tudo o que tem direito de terceiros ou uso restrito fica fora do git.
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ── 1. Apresentação do seminário ───────────────────────────────────────────
+# Arquivo: Seminario_PDI_Pipelines_Hibridos.pptx
+#
+# Por que NÃO vai para o GitHub:
+#   · O slide 2 mostra imagens geradas por IA para um projeto de jogo, de uso
+#     restrito. Elas foram autorizadas só para exibição em sala de aula, e o
+#     próprio slide traz a frase de restrição. Publicá-las no repositório
+#     contraria essa condição.
+#   · Um .pptx guarda as imagens embutidas (ppt/media/). Mesmo que fossem
+#     apagadas do slide, versões antigas ficariam no histórico do git.
+#   · O arquivo é binário (compactado), então o git não mostra diferenças
+#     úteis entre versões e o histórico só engordaria.
+# Como o professor recebe: anexo do e-mail (o arquivo fica só na pasta local).
+Seminario_PDI_Pipelines_Hibridos.pptx
+# Qualquer outra versão ou cópia da apresentação também fica de fora:
+*.pptx
+*.ppt
+*.key
+*.odp
+
+# ── 2. Livro-texto ─────────────────────────────────────────────────────────
+# Arquivo: Processamento Digital de Imagens.pdf
+#   (MARQUES FILHO, O.; VIEIRA NETO, H. Processamento Digital de Imagens.
+#    Rio de Janeiro: Brasport, 1999. 331 páginas, cerca de 6 MB.)
+#
+# Por que NÃO vai para o GitHub:
+#   · É obra protegida por direitos autorais. Um repositório público a
+#     redistribuiria sem autorização dos autores e da editora.
+#   · Serve só de consulta local (a equipe o usa para citar capítulos e
+#     seções nos slides).
+#   · Tem cerca de 6 MB e não é código: inchar o repositório não ajuda.
+# No README o livro entra apenas como REFERÊNCIA bibliográfica.
+# O nome tem espaços, por isso vai entre aspas no comando e aqui sem aspas:
+Processamento Digital de Imagens.pdf
+# Qualquer outro PDF (livros, artigos, exportações dos slides) também fica de fora:
+*.pdf
+
+# ── 3. Modelos de rede neural ──────────────────────────────────────────────
+# Por que: são arquivos grandes, com licença própria. O código aceita o
+# caminho por --modelo e o README diz onde obtê-los.
+*.onnx
+*.pt
+*.pth
+*.safetensors
+
+# ── 4. Segredos ────────────────────────────────────────────────────────────
+# Por que: chaves e credenciais nunca devem entrar no histórico do git.
+.env
+.env.*
+*.key
+*.pem
+
+# ── 5. Saídas e arquivos gerados ───────────────────────────────────────────
+# Por que: resultados dos scripts (imagens, máscaras, vídeos) são reproduzíveis
+# a partir do código e não devem ser versionados.
+saidas/
+*.mp4
+__pycache__/
+*.pyc
+.venv/
+
+# ── 6. Rascunhos de comunicação ────────────────────────────────────────────
+# Rascunho do e-mail ao professor: não é parte do código do trabalho.
+email_*.txt
+
+# Arquivos de trava de editores (LibreOffice etc.): trazem usuário e caminhos pessoais
+.~lock.*#
+*.swp
+*~
+.DS_Store

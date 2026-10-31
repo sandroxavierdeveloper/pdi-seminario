@@ -1,0 +1,11 @@
+# Núcleo de PDI (suficiente para rodar tudo, exceto o inpainting neural opcional)
+numpy>=1.24
+opencv-python-headless>=4.8
+pillow>=10.0
+
+# Opcional: mapa de profundidade por rede neural (animatic_pdi.py --modelo)
+# onnxruntime>=1.16
+
+# Opcional: inpainting neural no limpar_legendas.py (sem --so-mascara)
+# torch  (versão só-CPU: pip install torch --index-url https://download.pytorch.org/whl/cpu)
+# simple-lama-inpainting
