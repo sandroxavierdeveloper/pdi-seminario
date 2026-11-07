@@ -14,7 +14,8 @@ Medidas por par de quadros consecutivos (unidade da disciplina entre parênteses
      semelhança (translação + rotação + escala) por RANSAC. O modelo global
      é o movimento de CÂMERA; o resíduo é o movimento LOCAL (as coisas que
      se mexem de verdade), medido como % da área do quadro cujo resíduo
-     passa de 1 px (limiarização).                                    (3: transformações geométricas)
+     passa de 1 px (limiarização). Em animatic 2.5D, o modelo 2D não absorve
+     a paralaxe de profundidade, gerando resíduo que expressa esse relevo. (3: transformações geométricas)
 Medidas sobre a série temporal:
   4. quadros CONGELADOS: sequências em que a diferença fica abaixo do limiar
      (limiarização 1D + contagem de sequências).              (1, 6)
@@ -141,7 +142,11 @@ def main():
         sys.exit('vídeo curto demais')
     diff, simm, cam, loc = [], [], [], []
     for p, q in zip(quadros[:-1], quadros[1:]):
-        diff.append(float(np.abs(q.astype(np.float32) - p.astype(np.float32)).mean()))
+        # Filtro gaussiano 5x5 antes da diferença absoluta: remove ruído gaussiano/grão (sigma~5.5)
+        # permitindo que quadros congelados com grão caiam abaixo do limiar (0.30):
+        pf = cv2.GaussianBlur(p, (5, 5), 1.5).astype(np.float32)
+        qf = cv2.GaussianBlur(q, (5, 5), 1.5).astype(np.float32)
+        diff.append(float(np.abs(qf - pf).mean()))
         simm.append(ssim(p, q))
         c, l = fluxo_global_e_local(p, q)
         cam.append(c)
@@ -153,7 +158,7 @@ def main():
     os.makedirs(a.saida, exist_ok=True)
     with open(os.path.join(a.saida, 'medidas.csv'), 'w', newline='') as f:
         w = csv.writer(f)
-        w.writerow(['par', 'diff_abs', 'ssim', 'camera_px', 'local_px'])
+        w.writerow(['par', 'diff_abs', 'ssim', 'camera_px', 'local_area_pct'])
         for i in range(len(diff)):
             w.writerow([i, f'{diff[i]:.4f}', f'{simm[i]:.4f}', f'{cam[i]:.4f}', f'{loc[i]:.4f}'])
     grafico(os.path.join(a.saida, 'grafico.png'),

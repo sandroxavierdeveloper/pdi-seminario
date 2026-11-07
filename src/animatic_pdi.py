@@ -8,7 +8,8 @@ Técnicas usadas (unidades da disciplina entre parênteses):
     horizontal e tremor de câmera como deslocamento por pixel.        (3)
   · Paralaxe 2.5D: o deslocamento de cada pixel é proporcional a um mapa
     de profundidade, então o que está perto se move mais que o fundo.
-  · Reamostragem com interpolação (resize cúbico e Lanczos).          (3)
+  · Reamostragem com interpolação: Lanczos no pré-redimensionamento,
+    bicúbica na névoa e bilinear no remapeamento por quadro.          (3)
   · Filtragem espacial gaussiana: suaviza o mapa de profundidade, a
     máscara de luz quente e o campo de névoa.                         (2, 4)
   · Limiarização em HSV: isola a luz quente (tom laranja, claro).     (6, 7)
@@ -121,6 +122,7 @@ def main():
     r = np.random.default_rng(5)
     nevoa = cv2.GaussianBlur(r.random((h // 8, (w // 8) * 2)).astype(np.float32), (0, 0), sigmaX=18)
     nevoa = (nevoa - nevoa.min()) / (nevoa.max() - nevoa.min())
+    nevoa_full = cv2.resize(nevoa, (w * 2, h), interpolation=cv2.INTER_CUBIC)
     vinheta = (1 - 0.32 * (((xs[:H, :W] - W / 2) / (W / 2)) ** 2 + ((ys[:H, :W] - H / 2) / (H / 2)) ** 2)).clip(0.55, 1)[..., None]
 
     ff = subprocess.Popen(['ffmpeg', '-v', 'error', '-y', '-f', 'rawvideo', '-pix_fmt', 'bgr24', '-s', f'{W}x{H}', '-r', str(FPS), '-i', '-',
@@ -138,8 +140,10 @@ def main():
         if tipo == 'fogo':
             q *= 1 + quente * (0.10 * chama[i])
         if tipo in ('paisagem', 'fogo'):
-            off = int(i * 0.6) % nevoa.shape[1]
-            nv = cv2.resize(np.roll(nevoa, -off, axis=1)[:, : w // 8], (w, h), interpolation=cv2.INTER_CUBIC)[..., None]
+            # Deslocamento subpixel contínuo (evita saltos de 8 px por quantização inteira na grade 1/8):
+            shift_x = (i * 4.8) % (w * 2)
+            M_nv = np.array([[1.0, 0.0, -shift_x], [0.0, 1.0, 0.0]], dtype=np.float32)
+            nv = cv2.warpAffine(nevoa_full, M_nv, (w, h), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_WRAP)[..., None]
             q = q * (1 - 0.10 * nv * (1 - d[..., None])) + 210 * 0.10 * nv * (1 - d[..., None])
         oy, ox = (h - H) // 2, (w - W) // 2
         q = q[oy:oy + H, ox:ox + W] * vinheta

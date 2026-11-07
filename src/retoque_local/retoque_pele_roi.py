@@ -13,7 +13,8 @@ transformação de intensidade L' = a + b·L aplicada por pixel (2, 3).
 
 Regra de seleção (tom de pele em RGB):  R > B + 6  e  R > G + 4.
 Os pixels selecionados são escurecidos por L' = 8 + 0,10·L, mantendo o
-sombreado relativo.
+sombreado relativo. O ponto fixo dessa reta é L = 8,89: abaixo dele o pixel
+clarearia, mas tons de pele selecionados pela regra nunca são tão escuros.
 
 Uso: retoque_pele_roi.py <entrada> <saida> <x0> <x1> <y0> <y1> [--mascara mascara.png]
 """
@@ -31,7 +32,7 @@ def retocar(a, x0, x1, y0, y1, limiar_b=6, limiar_g=4, a0=8.0, b0=0.10):
     regra = (r > b + limiar_b) & (r > g + limiar_g)           # limiarização por cor
     sel[y0:y1, x0:x1] = regra[y0:y1, x0:x1]                   # restrita à ROI
     L = 0.3 * r + 0.59 * g + 0.11 * b                         # luminância
-    Ln = a0 + b0 * L                                          # transformação de intensidade
+    Ln = a0 + b0 * L                                          # transformação de intensidade (fórmula do slide 2)
     k = np.where(L > 1, Ln / np.maximum(L, 1), 1.0)
     out = f.copy()
     out[sel] = f[sel] * k[sel][:, None]                       # escala os três canais igualmente

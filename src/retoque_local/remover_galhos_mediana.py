@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """
-remover_galhos_mediana.py: remove estruturas finas e escuras sobre o céu
-(galhos) e devolve o fundo da imagem base. Sem IA.
+remover_galhos_mediana.py: isola as estruturas finas e escuras sobre o céu
+(galhos/planta) da imagem v1 e as transfere para a imagem base, que mantém o
+próprio fundo em todo o resto. Sem IA. (Apesar do nome histórico do arquivo,
+o resultado é a base COM a planta da v1: c = base·(1−m) + v1·m.)
 
 Técnicas (unidade da disciplina): filtro de mediana 31x31 estima o fundo sem
 os detalhes finos (2, 4); diferença de luminância entre imagem e fundo (2);
@@ -34,7 +36,7 @@ m[368:, :235] = 0                                          # exclui uma região 
 # Máximo 9x9 (dilatação) seguido de mínimo 7x7 (erosão) fecha buracos da máscara.
 M = Image.fromarray((m * 255).astype(np.uint8)).filter(ImageFilter.MaxFilter(9)).filter(ImageFilter.MinFilter(7)).filter(ImageFilter.GaussianBlur(1.2))
 m = np.asarray(M).astype(np.float32) / 255
-pl = np.asarray(I.filter(ImageFilter.GaussianBlur(1.0))).astype(np.float32)
+pl = np.asarray(I.filter(ImageFilter.GaussianBlur(1.0))).astype(np.float32)   # planta da v1, levemente suavizada
 c = b * (1 - m[..., None]) + pl * m[..., None]
 Image.fromarray(np.clip(c, 0, 255).astype(np.uint8)).save(out, quality=95)
 M.save(mout)
