@@ -4,10 +4,17 @@
   pagina_sintetica.png : fundo colorido com texturas e dois balões de fala
                          (miolo claro, contorno escuro, letras) para limpar_legendas.py
   pes_sinteticos.png   : cena escura com duas formas de tom de pele para
-                         retoque_pele_roi.py (ROI sugerida: 120 340 200 330)
+                         retoque_pele_roi.py (ROI: 120 340 200 340)
   video_teste.mp4      : 4 s a 24 fps. Um disco se move nos 2 primeiros segundos e
                          os 2 últimos ficam CONGELADOS (para avaliar_animatic.py).
                          Não é versionado (o .gitignore ignora .mp4); gere-o aqui.
+  cabelo_sintetico.png : cabelo escuro com fios cinza claros (escurecer_fios_claros.py;
+                         elipse 200 120 150 90)
+  galhos_v1.png        : céu com galhos escuros finos (transferir_galhos_mediana.py)
+  galhos_base.png      : o mesmo céu, sem galhos (imagem base)
+  textura_sintetica.png: 900x660 com uma faixa de textura fina à esquerda e uma região
+                         lisa e clara à direita (transferir_alta_frequencia.py com os
+                         padrões; gama_e_tom.py roda em qualquer imagem)
 
 Uso: python3 exemplos/gerar_exemplos.py [pasta_de_saida]   (padrão: exemplos)
 """
@@ -58,4 +65,38 @@ for i in range(96):
     cv2.circle(q, (60 + int(7.5 * k), 400 - int(2.0 * k)), 28, (40, 180, 240), -1)
     vw.write(q)
 vw.release()
+
+# ── Imagens para os retoques de src/retoque_local/ ───────────────────────
+r2 = np.random.default_rng(11)
+
+# Cabelo: fundo escuro com fios cinza claros dentro da elipse (200, 120, 150, 90).
+cab = np.full((300, 400, 3), (30, 38, 52), np.uint8)                      # BGR: castanho escuro
+cab = np.clip(cab.astype(np.int16) + r2.normal(0, 5, cab.shape), 0, 255).astype(np.uint8)
+for _ in range(40):
+    x = int(r2.integers(80, 320)); y = int(r2.integers(50, 190))
+    dx, dy = int(r2.integers(-25, 25)), int(r2.integers(15, 40))
+    cv2.line(cab, (x, y), (x + dx, y + dy), (190, 190, 192), 1, cv2.LINE_AA)  # fio cinza claro
+cv2.imwrite(os.path.join(saida, 'cabelo_sintetico.png'), cab)
+
+# Galhos: céu em gradiente (ROI padrão 140:480, 170:400 cabe em 600x450) com galhos marrons finos.
+ceu = np.zeros((450, 600, 3), np.uint8)
+for y in range(450):
+    t = y / 450
+    ceu[y, :] = (int(200 - 40 * t), int(150 + 30 * t), int(90 + 110 * t))  # BGR
+ceu = np.clip(ceu.astype(np.int16) + r2.normal(0, 2, ceu.shape), 0, 255).astype(np.uint8)
+galhos = ceu.copy()
+for x0, y0 in [(150, 390), (260, 395), (380, 390)]:
+    x, y = x0, y0
+    for _ in range(9):
+        nx, ny = x + int(r2.integers(-18, 22)), y - int(r2.integers(18, 28))
+        cv2.line(galhos, (x, y), (nx, ny), (25, 45, 70), 3, cv2.LINE_AA)  # marrom escuro saturado
+        x, y = nx, ny
+cv2.imwrite(os.path.join(saida, 'galhos_v1.png'), galhos)
+cv2.imwrite(os.path.join(saida, 'galhos_base.png'), ceu)
+
+# Textura: origem do detalhe (x 45:300, y 530:646) e destino liso e claro (300:845, 506:622).
+tex = np.full((660, 900, 3), 150, np.uint8)
+tex[:, :300] = np.clip(tex[:, :300].astype(np.int16) + r2.normal(0, 14, tex[:, :300].shape), 0, 255)
+tex[506:622, 300:845] = (170, 180, 190)
+cv2.imwrite(os.path.join(saida, 'textura_sintetica.png'), tex)
 print('gerado em', saida)

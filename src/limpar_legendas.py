@@ -26,8 +26,8 @@ Uso:
   --saida PASTA  onde gravar os resultados (padrão: ./saidas). Os arquivos
                  originais NUNCA são alterados.
 """
+import argparse
 import os
-import sys
 import time
 
 import cv2
@@ -112,8 +112,8 @@ def detectar(im):
         fracao_texto = miolo.sum() / 255.0 / max(1, area_cheia)
         if not (TEXTO_MIN <= fracao_texto <= TEXTO_MAX):
             continue
-        nl, _, stl, _ = cv2.connectedComponentsWithStats(miolo, connectivity=8)
-        letras = [stl[k] for k in range(1, nl) if 12 <= stl[k][4] <= 900 and stl[k][3] <= 0.6 * h]
+        n_let, _, st_let, _ = cv2.connectedComponentsWithStats(miolo, connectivity=8)
+        letras = [st_let[k] for k in range(1, n_let) if 12 <= st_let[k][4] <= 900 and st_let[k][3] <= 0.6 * h]
         if len(letras) < LETRAS_MIN or not parece_texto(letras):
             continue
         pad = 8
@@ -176,16 +176,13 @@ def paginas(args):
             yield a
 
 
-def main():
-    args = [a for a in sys.argv[1:] if not a.startswith('--')]
-    so_mascara = '--so-mascara' in sys.argv
-    saida = './saidas'
-    if '--saida' in sys.argv:
-        saida = sys.argv[sys.argv.index('--saida') + 1]
-        args = [a for a in args if a != saida]
-    if not args:
-        print(__doc__)
-        sys.exit(2)
+def main(argv=None):
+    ap = argparse.ArgumentParser(description='Detecta balões e legendas e, opcionalmente, reconstrói o fundo.')
+    ap.add_argument('entradas', nargs='+', metavar='pasta-ou-imagem')
+    ap.add_argument('--so-mascara', action='store_true', help='só detecta; grava as máscaras em <saida>/mascaras')
+    ap.add_argument('--saida', default='./saidas', help='pasta dos resultados (padrão ./saidas)')
+    a = ap.parse_args(argv)
+    args, so_mascara, saida = a.entradas, a.so_mascara, a.saida
     os.makedirs(os.path.join(saida, 'mascaras'), exist_ok=True)
     for p in paginas(args):
         t0 = time.time()

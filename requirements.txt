@@ -9,3 +9,6 @@ pillow>=10.0
 # Opcional: inpainting neural no limpar_legendas.py (sem --so-mascara)
 # torch  (versão só-CPU: pip install torch --index-url https://download.pytorch.org/whl/cpu)
 # simple-lama-inpainting
+
+# Testes (python3 -m pytest)
+pytest>=7

@@ -18,10 +18,12 @@ clarearia, mas tons de pele selecionados pela regra nunca são tão escuros.
 
 Uso: retoque_pele_roi.py <entrada> <saida> <x0> <x1> <y0> <y1> [--mascara mascara.png]
 """
-import sys
+import argparse
 
 import numpy as np
 from PIL import Image
+
+from _comum import abrir_imagem, validar_roi
 
 
 def retocar(a, x0, x1, y0, y1, limiar_b=6, limiar_g=4, a0=8.0, b0=0.10):
@@ -32,23 +34,29 @@ def retocar(a, x0, x1, y0, y1, limiar_b=6, limiar_g=4, a0=8.0, b0=0.10):
     regra = (r > b + limiar_b) & (r > g + limiar_g)           # limiarização por cor
     sel[y0:y1, x0:x1] = regra[y0:y1, x0:x1]                   # restrita à ROI
     L = 0.3 * r + 0.59 * g + 0.11 * b                         # luminância
-    Ln = a0 + b0 * L                                          # transformação de intensidade (fórmula do slide 2)
+    Ln = a0 + b0 * L                                          # transformação de intensidade
     k = np.where(L > 1, Ln / np.maximum(L, 1), 1.0)
     out = f.copy()
     out[sel] = f[sel] * k[sel][:, None]                       # escala os três canais igualmente
     return np.clip(out, 0, 255).astype(np.uint8), sel
 
 
+def main(argv=None):
+    ap = argparse.ArgumentParser(description='Escurece pixels de tom de pele dentro de uma ROI retangular.')
+    ap.add_argument('entrada')
+    ap.add_argument('saida')
+    for n in ('x0', 'x1', 'y0', 'y1'):
+        ap.add_argument(n, type=int)
+    ap.add_argument('--mascara', help='grava a máscara dos pixels alterados neste arquivo')
+    a = ap.parse_args(argv)
+    img = np.asarray(abrir_imagem(a.entrada))
+    validar_roi(a.x0, a.x1, a.y0, a.y1, img.shape[1], img.shape[0])
+    res, sel = retocar(img, a.x0, a.x1, a.y0, a.y1)
+    Image.fromarray(res).save(a.saida)
+    if a.mascara:
+        Image.fromarray((sel * 255).astype(np.uint8)).save(a.mascara)
+    print(f'{int(sel.sum())} pixels alterados na ROI ({a.x0}:{a.x1}, {a.y0}:{a.y1})')
+
+
 if __name__ == '__main__':
-    args = [x for x in sys.argv[1:] if not x.startswith('--')]
-    if len(args) < 6:
-        print(__doc__)
-        sys.exit(2)
-    entrada, saida = args[0], args[1]
-    x0, x1, y0, y1 = map(int, args[2:6])
-    img = np.asarray(Image.open(entrada).convert('RGB'))
-    res, sel = retocar(img, x0, x1, y0, y1)
-    Image.fromarray(res).save(saida)
-    if '--mascara' in sys.argv:
-        Image.fromarray((sel * 255).astype(np.uint8)).save(sys.argv[sys.argv.index('--mascara') + 1])
-    print(f'{int(sel.sum())} pixels alterados na ROI ({x0}:{x1}, {y0}:{y1})')
+    main()

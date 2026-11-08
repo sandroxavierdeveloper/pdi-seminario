@@ -31,6 +31,7 @@ Uso:
 import argparse
 import os
 import re
+import shutil
 import subprocess
 import sys
 
@@ -93,6 +94,8 @@ def main():
     ap.add_argument('--largura', type=int, default=1920)
     ap.add_argument('--modelo', default=None, help='modelo ONNX de profundidade (opcional)')
     a = ap.parse_args()
+    if shutil.which('ffmpeg') is None:
+        sys.exit('erro: ffmpeg não encontrado no PATH. Instale-o (ex.: sudo apt install ffmpeg, brew install ffmpeg) e tente de novo.')
     W, H = a.largura, a.largura * 9 // 16
     src = cv2.imread(a.imagem)
     if src is None:
