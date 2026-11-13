@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seminário PDI — Aplicação de Técnicas Clássicas de PDI para Pré e Pós-Processamento em Pipelines Híbridos de IA</title>
+<style>
+  :root{
+    --bg:#0e1116; --panel:#161b23; --panel2:#1c232e; --ink:#e8e6e1;
+    --muted:#9aa4b2; --accent:#d4a017; --accent2:#5aa9e6; --ok:#5fbf77;
+    --pdi:#5aa9e6; --ia:#e07a5f; --unity:#a06cd5; --line:#2a3342;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--bg); color:var(--ink);
+       font-family:"Georgia","Times New Roman",serif; line-height:1.5;
+       font-size:18px;}
+  .slide{max-width:1180px; margin:28px auto; padding:38px 46px;
+         background:var(--panel); border:1px solid var(--line);
+         border-radius:10px; box-shadow:0 6px 24px rgba(0,0,0,.35);
+         min-height:600px;}
+  h1{font-size:1.9em; line-height:1.25; margin-bottom:10px;}
+  h2{font-size:1.5em; margin-bottom:16px; border-bottom:2px solid var(--accent);
+     padding-bottom:8px;}
+  .kicker{color:var(--muted); font-style:italic; font-size:.92em;}
+  .team{margin-top:14px; font-size:1.02em;}
+  .team b{color:var(--accent);}
+  .cols{display:grid; grid-template-columns:1fr 1fr; gap:22px;}
+  .cols3{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+  .box{background:var(--panel2); border:1px solid var(--line);
+       border-radius:8px; padding:14px 16px;}
+  .box h3{font-size:1.02em; color:var(--accent); margin-bottom:8px;
+          font-family:inherit;}
+  .box .tag{display:inline-block; font-size:.8em; letter-spacing:.06em;
+            padding:2px 8px; border-radius:20px; margin-bottom:8px;
+            font-family:"Courier New",monospace;}
+  .tag-pdi{background:rgba(90,169,230,.18); color:var(--pdi); border:1px solid var(--pdi);}
+  .tag-ia{background:rgba(224,122,95,.18); color:var(--ia); border:1px solid var(--ia);}
+  .tag-unity{background:rgba(160,108,213,.18); color:var(--unity); border:1px solid var(--unity);}
+  code, .mono{font-family:"Courier New",monospace; font-size:.92em;
+       background:#0b0e13; padding:1px 6px; border-radius:4px; color:#ffd479;}
+  .formula{display:block; text-align:center; font-family:"Courier New",monospace;
+           color:#ffd479; margin:8px 0; font-size:1.02em;}
+  table{width:100%; border-collapse:collapse; margin:10px 0; font-size:.94em;}
+  th,td{border:1px solid var(--line); padding:7px 10px; text-align:left; vertical-align:top;}
+  th{background:#121822; color:var(--accent); font-weight:600;}
+  .flow{display:flex; flex-wrap:wrap; align-items:stretch; gap:8px; margin:16px 0;}
+  .step{flex:1 1 140px; background:var(--panel2); border-radius:8px;
+        padding:10px 12px; border-top:4px solid var(--line); position:relative;}
+  .step .n{font-family:"Courier New",monospace; font-size:.85em; color:var(--muted);}
+  .step h4{font-size:.98em; margin:2px 0 6px;}
+  .step p{font-size:.85em; color:#c3cbd6;}
+  .step.pdi{border-top-color:var(--pdi);} .step.pdi h4{color:var(--pdi);}
+  .step.ia{border-top-color:var(--ia);} .step.ia h4{color:var(--ia);}
+  .step.unity{border-top-color:var(--unity);} .step.unity h4{color:var(--unity);}
+  .arrow{align-self:center; color:var(--muted); font-size:1.3em;}
+  .loopback{font-size:.88em; color:var(--muted); font-style:italic;
+            border-left:3px solid var(--accent); padding:6px 12px; margin-top:8px;}
+  .matrix{display:inline-block; border-collapse:collapse; margin:8px auto;}
+  .matrix td{width:44px; height:34px; text-align:center; font-family:"Courier New",monospace;
+             border:1px solid #38445a; background:#121822; font-size:.9em;}
+  .foot{margin-top:18px; font-size:.85em; color:var(--muted);
+        border-top:1px dashed var(--line); padding-top:10px;}
+  ul.rich{margin:8px 0 8px 20px;}
+  ul.rich li{margin-bottom:7px;}
+  .num{display:inline-block; width:26px; height:26px; border-radius:50%;
+       background:var(--accent); color:#111; text-align:center; line-height:26px;
+       font-weight:bold; font-size:.9em; margin-right:6px;}
+</style>
+</head>
+<body>
+
+<!-- ============ SLIDE 1 — CAPA ============ -->
+<section class="slide" id="s1">
+  <h1>Aplicação de Técnicas Clássicas de PDI para Pré e Pós-Processamento em Pipelines Híbridos de IA</h1>
+  <p class="kicker">Seminário · Processamento Digital de Sinais e Imagens · UFG</p>
+  <p class="team"><b>Equipe PDI</b> — Bruno Barros Ribeiro (202503994) · Sandro Xavier de Faria (202403925) · Josifran Moreira da Silva Junior<br>
+     Bacharelado em Inteligência Artificial</p>
+
+  <div class="cols" style="margin-top:26px;">
+    <div class="box">
+      <h3>A tese em uma frase</h3>
+      <p>Fazer vídeo com IA custa caro em qualquer cenário: <b>R$ 0,50 por
+      segundo</b> de API a cada tentativa, ou <b>~R$ 100 mil de setup local</b>
+      (GPU de R$ 40 mil + fine-tuning contínuo de LLM para agentes
+      especializados) rodando semanas antes do primeiro render. Técnicas
+      clássicas de PDI barateiam a produção em duas frentes:
+      <b>pré-visualizar e julgar a cena no barato</b> (animatic) e
+      <b>corrigir erros pontuais por código</b> — sem nova chamada ao modelo.</p>
+    </div>
+    <div class="box">
+      <h3>Três motores, papéis distintos</h3>
+      <p><span class="tag tag-ia">IA</span> gera imagem e vídeo (caixa-preta)<br>
+         <span class="tag tag-pdi">PDI</span> corrige, anima e mede (código próprio, reproduzível)<br>
+         <span class="tag tag-unity">MOTOR DE RENDER</span> re-renderiza proceduralmente o aprovado (produção)</p>
+    </div>
+  </div>
+  <p class="foot">Livro-texto: MARQUES FILHO, O.; VIEIRA NETO, H. <i>Processamento Digital de Imagens</i>. Brasport, 1999 — Caps. 2 a 5 aplicados a código real.</p>
+</section>
+
+<!-- ============ SLIDE 2 — MOTIVAÇÃO: CUSTO ============ -->
+<section class="slide" id="s2">
+  <h2>A motivação: vídeo de IA custa caro por segundo</h2>
+  <div class="cols">
+    <div class="box">
+      <h3>O problema econômico</h3>
+      <p>Gerar vídeo com modelo de IA custa na ordem de
+         <b>50 centavos por segundo</b>. Um curta de 2 minutos custaria
+         <b>mais de R$ 60 por tentativa</b> — e a primeira tentativa
+         quase nunca é a boa.</p>
+      <p style="margin-top:6px;"><b>As duas saídas são caras:</b></p>
+      <ul class="rich" style="margin-top:6px;">
+        <li><b>Pagar API a cada tentativa</b>: se o vídeo sai com erro
+            (personagem, luz, movimento), <b>refazer é pagar tudo de
+            novo</b>. Testar ideias de cena a R$ 0,50/s torna a iteração
+            — que é onde a qualidade nasce — <b>proibitivamente cara</b>;</li>
+        <li><b>Gerar em casa</b>: a GPU sozinha custa na ordem de
+            <b>R$ 40 mil</b>; o setup completo (GPU, CPU, memória em
+            quantidade, armazenamento rápido, refrigeração, energia)
+            chega a <b>~R$ 100 mil</b>. E a máquina não se paga sozinha:
+            para gerar <b>agentes</b> especializados — LLM (Qwen)
+            submetida a <i>fine-tuning</i> —, são <b>semanas de
+            processamento contínuo</b>, consumendo a máquina antes mesmo
+            de renderizar o primeiro vídeo;</li>
+      </ul>
+      <p style="margin-top:6px;">Ou seja: <b>capex de R$ 100 mil + semanas de
+      GPU alocada a treino</b>, ou <b>opex de R$ 0,50 por segundo em cada
+      tentativa</b>. Em ambos os cenários, cada segundo de vídeo efetivamente
+      aproveitado carrega esse lastro. <b>Quando o segundo de vídeo é o
+      insumo caro, tudo que puder ser decidido antes, no barato, deve ser.</b></p>
+    </div>
+    <div class="box">
+      <h3>A resposta do pipeline</h3>
+      <ul class="rich">
+        <li><b>Pré-decisão barata</b>: um <b>animatic</b> — vídeo de
+            pré-visualização feito com PDI clássico sobre imagens paradas
+            (imagem gerada uma única vez, fração do custo) — já mostra
+            zoom, deriva, paralaxe, névoa e grão;</li>
+        <li><b>Juiz automático e gratuito</b>: o animatic é medido por
+            código (movimento, congelamentos, similaridade) <b>antes</b>
+            de qualquer geração de vídeo;</li>
+        <li><b>Só o aprovado vai ao modelo de vídeo</b>: o segundo caro
+            é pago quando a cena já está validada — não como aposta;</li>
+        <li>De quebra, o PDI ainda <b>corrige erros pontuais</b> na
+            imagem (um detalhe errado não obriga a regenerar tudo).</li>
+      </ul>
+    </div>
+  </div>
+  <div class="box" style="margin-top:16px;">
+    <h3>Exemplo real de correção pontual (imagem, não vídeo)</h3>
+    <div style="display:flex; gap:10px; align-items:center; margin-top:6px;">
+      <figure style="flex:1; text-align:center; margin:0;">
+        <img src="img/pes_sinteticos.png" style="width:100%; border-radius:6px; border:1px solid var(--line);">
+        <figcaption class="kicker" style="font-size:.8em;">antes: detalhe errado</figcaption>
+      </figure>
+      <span class="arrow">→</span>
+      <figure style="flex:1; text-align:center; margin:0;">
+        <img src="img/pes_mascara.png" style="width:100%; border-radius:6px; border:1px solid var(--line);">
+        <figcaption class="kicker" style="font-size:.8em;">a máscara que localiza o problema</figcaption>
+      </figure>
+      <span class="arrow">→</span>
+      <figure style="flex:1; text-align:center; margin:0;">
+        <img src="img/pes.png" style="width:100%; border-radius:6px; border:1px solid var(--line);">
+        <figcaption class="kicker" style="font-size:.8em;">depois: corrigido por código, sem regenerar</figcaption>
+      </figure>
+    </div>
+    <p style="margin-top:8px;">Um modelo de imagem errou um detalhe <b>e repetiu o erro ao regenerar</b>.
+       Em vez de pagar por novas tentativas, uma regra clássica localiza o problema
+       (separação por cor) e o corrige de forma determinística.</p>
+    <p style="margin-top:6px;"><b>Mas isso é PDI ou "Photoshop"?</b> É PDI dos dois jeitos —
+       a diferença é <b>quem aplica</b>: a mão do operador (uma imagem por vez) ou
+       o código (milhares por lote). A escala real do projeto está no próximo
+       slide — e é ela que torna o manual <b>impraticável</b>.</p>
+  </div>
+</section>
+
+<!-- ============ SLIDE 2.5 — DATASET ============ -->
+<section class="slide" id="s25">
+  <h2>O dataset que justifica a automação</h2>
+  <p class="kicker" style="margin-bottom:14px;">Volumes reais, medidos no projeto — é por essa escala que a correção manual (imagem por imagem) está descartada.</p>
+
+  <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin:20px 0;">
+    <div class="box" style="text-align:center; padding:22px 12px;">
+      <p style="font-size:2.6em; font-weight:bold; color:var(--accent); line-height:1;">~21 mil</p>
+      <p style="font-size:1.05em; margin-top:8px;"><b>quadros de cenas</b></p>
+      <p class="kicker">processados pelo pipeline, cena por cena</p>
+    </div>
+    <div class="box" style="text-align:center; padding:22px 12px;">
+      <p style="font-size:2.6em; font-weight:bold; color:var(--accent2); line-height:1;">300</p>
+      <p style="font-size:1.05em; margin-top:8px;"><b>imagens-base</b></p>
+      <p class="kicker">pares imagem + texto-fonte, domínio público</p>
+    </div>
+    <div class="box" style="text-align:center; padding:22px 12px;">
+      <p style="font-size:2.6em; font-weight:bold; color:var(--accent2); line-height:1;">~1,9 mil</p>
+      <p style="font-size:1.05em; margin-top:8px;"><b>referências visuais</b></p>
+      <p class="kicker">filmes históricos (1903–2013) como guia estético</p>
+    </div>
+    <div class="box" style="text-align:center; padding:22px 12px;">
+      <p style="font-size:2.6em; font-weight:bold; color:var(--accent); line-height:1;">~6,5 mil</p>
+      <p style="font-size:1.05em; margin-top:8px;"><b>vídeos</b></p>
+      <p class="kicker">saídas do pipeline em vários estágios</p>
+    </div>
+  </div>
+
+  <div class="box" style="margin-top:10px;">
+    <h3>Por que esses números importam</h3>
+    <ul class="rich">
+      <li><b>21 mil quadros não se retocam à mão</b>: a 5 minutos por
+          imagem, seriam <b>mais de 1.700 horas</b> de trabalho manual —
+          sete meses de jornada full-time para uma única passada;</li>
+      <li><b>Cada quadro custou para existir</b>: insumo gerado por IA
+          (API ou GPU própria) não se descarta por causa de um detalhe —
+          corrigir por código preserva o investimento;</li>
+      <li><b>O juiz automático vira obrigação</b>: ninguém assiste 6,5 mil
+          vídeos com atenção igual; as métricas da etapa 5 sim;</li>
+      <li>É essa escala — não um caso isolado — que dá <b>sentido
+          econômico ao pipeline</b>: PDI em série barateia o segundo de
+          vídeo final.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ SLIDE 3 — PIPELINE ============ -->
+<section class="slide" id="s3">
+  <h2>O pipeline: a IA gera, o PDI corrige e mede, a etapa de render produz</h2>
+  <div class="flow">
+    <div class="step"><span class="n">1</span><h4>Imagem sem direitos autorais</h4><p>ENTRADA · obra em domínio público, livre para uso</p></div>
+    <div class="arrow">→</div>
+    <div class="step ia"><span class="n">2</span><h4>Imagem inspirada</h4><p>IA · gerada por modelo de imagem (caixa-preta)</p></div>
+    <div class="arrow">→</div>
+    <div class="step pdi"><span class="n">3</span><h4>Análise e correção</h4><p>PDI · ROI, limiar de cor, mediana, filtros</p></div>
+    <div class="arrow">→</div>
+    <div class="step pdi"><span class="n">4</span><h4>Animatic</h4><p>PDI · remapeamento, paralaxe 2.5D, gaussiano</p></div>
+    <div class="arrow">→</div>
+    <div class="step pdi"><span class="n">5</span><h4>Avaliação</h4><p>PDI · diferença entre quadros, SSIM, fluxo óptico</p></div>
+    <div class="arrow">→</div>
+    <div class="step unity"><span class="n">6</span><h4>Render do motor gráfico</h4><p>QUADROS FINAIS · parallax multicamada em batchmode</p></div>
+    <div class="arrow">→</div>
+    <div class="step ia"><span class="n">7</span><h4>Vídeo final (IA)</h4><p>ÚLTIMO PASSO · modelo de vídeo processa os quadros aprovados</p></div>
+  </div>
+  
+  <div style="display:flex; gap:14px; align-items:flex-start; margin-top:14px;">
+    <figure style="flex:1; text-align:center; margin:0;">
+      <img src="img/pagina_sintetica.png" style="width:100%; max-height:180px; object-fit:cover; border-radius:6px; border:1px solid var(--line);">
+      <figcaption class="kicker" style="font-size:.8em;">entrada: imagem parada (exemplo sintético)</figcaption>
+    </figure>
+    <span class="arrow">→</span>
+    <figure style="flex:1; text-align:center; margin:0;">
+      <img src="img/pagina_entardecer.png" style="width:100%; max-height:180px; object-fit:cover; border-radius:6px; border:1px solid var(--line);">
+      <figcaption class="kicker" style="font-size:.8em;">saída do animatic: luz, névoa e grão (quadro do MP4)</figcaption>
+    </figure>
+    <span class="arrow">→</span>
+    <figure style="flex:1; text-align:center; margin:0;">
+      <video src="img/animatic.mp4" controls muted style="width:100%; max-height:180px; border-radius:6px; border:1px solid var(--line);"></video>
+      <figcaption class="kicker" style="font-size:.8em;">o animatic em movimento (arraste para ver)</figcaption>
+    </figure>
+  </div>
+  <p class="loopback">↺ Se a avaliação (5) reprova, o fluxo volta para a etapa 3 (correção) ou 2 (regeneração). Só o aprovado segue adiante.</p>
+
+  <div class="cols" style="margin-top:16px;">
+    <div class="box">
+      <h3>Etapa 6 — o que o motor gráfico faz (e o que não faz)</h3>
+      <ul class="rich">
+        <li><b>Faz</b>: render em <b>batchmode</b> via
+            <code>Camera.Render → ReadPixels → JPG</code> — gera os
+            <b>quadros finais com parallax multicamada e camadas
+            animadas</b>, proceduralmente, <b>antes</b> de o modelo de
+            vídeo entrar em cena;</li>
+        <li><b>Usa o animatic aprovado como gabarito de tempo</b>:
+            duração e cadência vêm do MP4 aprovado na etapa 5 — o motor
+            gráfico converte a pré-visualização barata em quadros de alta
+            qualidade;</li>
+        <li><b>Não faz</b>: correção de erros nem medição — isso é papel
+            exclusivo do PDI (etapas 3 e 5).</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>Divisão de responsabilidades</h3>
+      <table>
+        <tr><th>Motor</th><th>Papel no pipeline</th><th>Determinismo</th></tr>
+        <tr><td style="color:var(--ia)">IA</td><td>Gera imagem (2) e finaliza vídeo (7)</td><td>Estocástico</td></tr>
+        <tr><td style="color:var(--pdi)">PDI</td><td>Corrige (3), anima (4), julga (5)</td><td>Total</td></tr>
+        <tr><td style="color:var(--unity)">Motor gráfico</td><td>Renderiza quadros finais (6)</td><td>Total</td></tr>
+      </table>
+      <p class="foot" style="border:none; padding-top:4px;">As etapas 3–5 são o escopo do repositório acadêmico; a 6 é a aplicação de produção do projeto.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 5 — FERRAMENTAS DO NÚCLEO PDI ============ -->
+<section class="slide" id="s5">
+  <h2>As ferramentas do PDI — cada uma com um trabalho simples</h2>
+  <div class="cols3">
+    <div class="box"><span class="num">1</span><h3 style="display:inline;"> Separar por cor</h3>
+      <p style="margin-top:8px;">"Onde há pele? Onde há legenda?" —
+      marca sim/não para cada pixel. <b>(Cap. 3.6 e 4.6)</b></p></div>
+    <div class="box"><span class="num">2</span><h3 style="display:inline;"> Limpar a marcação</h3>
+      <p style="margin-top:8px;">Tira pontinhos soltos e fecha buracos,
+      como limpar um desenho de criança. <b>(Cap. 5.2 e 5.3)</b></p></div>
+    <div class="box"><span class="num">3</span><h3 style="display:inline;"> Achar regiões</h3>
+      <p style="margin-top:8px;">Junta os pixels marcados em "ilhas" e
+      desenha o contorno de cada uma. <b>(Cap. 5.5)</b></p></div>
+    <div class="box"><span class="num">4</span><h3 style="display:inline;"> Suavizar</h3>
+      <p style="margin-top:8px;">O clássico "desfoque": tira ruído e
+      bordas duras. <b>(Cap. 2.4 e 4.2)</b></p></div>
+    <div class="box"><span class="num">5</span><h3 style="display:inline;"> Combinar imagens</h3>
+      <p style="margin-top:8px;">Sobrepor, misturar e recortar com
+      máscaras — colagem digital. <b>(Cap. 2.3 e 3.2)</b></p></div>
+    <div class="box"><span class="num">6</span><h3 style="display:inline;"> Mover e redimensionar</h3>
+      <p style="margin-top:8px;">Zoom, deriva e paralaxe: cada quadro do
+      animatic nasce daqui. <b>(Cap. 2.5)</b></p></div>
+  </div>
+
+  <div class="box" style="margin-top:16px; padding:10px 14px;">
+    <img src="img/grafico.png" style="display:block; width:100%; max-height:520px; object-fit:contain; border-radius:6px; border:1px solid var(--line);">
+    <p class="kicker" style="text-align:center; margin-top:6px;">gráfico real de avaliação gerado pelo <code>avaliar_animatic.py</code> — o "juiz" da etapa 5</p>
+    <div class="cols" style="margin-top:8px;">
+      <div>
+        <p><b>Quem usa o quê:</b> separar por cor e achar regiões →
+        correção (3); suavizar e combinar → animatic (4); mover e
+        redimensionar → câmera do animatic (4); medir movimento →
+        avaliação (5).</p>
+      </div>
+      <div>
+        <p><b>O que o juiz pergunta:</b> Quem se moveu — a câmera toda ou
+        só coisas na cena? Quanto mudou de um quadro para o outro?
+        Travou em trecho "congelado"? E o aviso: <b>uma medida sozinha
+        engana</b> — um vídeo que só desliza a câmera "muda sem nada
+        mudar". O juiz combina várias medidas.</p>
+      </div>
+    </div>
+  </div>
+  <p class="foot">Referência: MARQUES FILHO, O.; VIEIRA NETO, H. <i>Processamento Digital de Imagens</i>. Brasport, 1999.</p>
+</section>
+
+<!-- ============ SLIDE 6 — CONCLUSÃO ============ -->
+<section class="slide" id="s6">
+  <h2>Conclusão</h2>
+  <div class="cols">
+    <div class="box">
+      <h3>Takeaways</h3>
+      <ul class="rich">
+        <li><b>PDI clássico e IA se complementam</b>: a IA gera, o PDI
+            controla, corrige e julga — e a etapa de render produz o final;</li>
+        <li><b>O gargalo econômico se ataca com matemática simples</b>:
+            decidir a cena num animatic de PDI (custo ~zero) em vez de
+            pagar R$ 0,50/s por tentativa — ou ocupar o setup de R$ 100 mil
+            com renders que a pré-visualização já teria reprovado;</li>
+        <li><b>Resultado determinístico, auditável e barato</b> — sem nova
+            chamada ao modelo, sem custo de API;</li>
+        <li><b>Aplica os Caps. 2 a 5 do livro-texto</b> (Marques Filho;
+            Vieira Neto, 1999) a código real;</li>
+        <li>Código, exemplos sintéticos e testes (pytest) no repositório
+            <code>pdi-seminario</code>.</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>O híbrido completo, em uma linha</h3>
+      <p style="font-size:1.05em;">
+        <span style="color:var(--muted)">Imagem sem direitos autorais</span> →
+        <b style="color:var(--ia)">IA gera</b> →
+        <b style="color:var(--pdi)">PDI corrige</b> →
+        <b style="color:var(--pdi)">PDI anima</b> →
+        <b style="color:var(--pdi)">PDI julga</b> →
+        <b style="color:var(--unity)">Motor gráfico renderiza os quadros</b> →
+        <b style="color:var(--ia)">IA finaliza o vídeo</b>
+      </p>
+      <p style="margin-top:14px;">Cada motor faz o que faz de melhor:
+      a IA, a criação estocástica; o PDI, a correção e a medição
+      determinísticas; a engine, o render interativo/produtivo em tempo
+      real.</p>
+      <p style="margin-top:14px;" class="kicker">"A IA gera; o PDI controla e corrige."</p>
+    </div>
+  </div>
+  <p class="foot">Equipe PDI · Seminário de Processamento Digital de Sinais e Imagens · UFG ·
+     github.com/sandroxavierdeveloper/pdi-seminario</p>
+</section>
+
+</body>
+</html>
